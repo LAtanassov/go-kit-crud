@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"errors"
 	"sync"
 )
@@ -42,7 +43,7 @@ func NewInMemoryRepository() *InMemoryRepository {
 }
 
 // Create assignns an user to the inmemory map.
-func (r *InMemoryRepository) Create(u User) error {
+func (r *InMemoryRepository) Create(_ context.Context, u User) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -56,7 +57,7 @@ func (r *InMemoryRepository) Create(u User) error {
 }
 
 // Read returns an existing user
-func (r *InMemoryRepository) Read(username string) (User, error) {
+func (r *InMemoryRepository) Read(_ context.Context, username string) (User, error) {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -69,7 +70,7 @@ func (r *InMemoryRepository) Read(username string) (User, error) {
 }
 
 // Update an existing user
-func (r *InMemoryRepository) Update(u User) error {
+func (r *InMemoryRepository) Update(_ context.Context, u User) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -84,7 +85,7 @@ func (r *InMemoryRepository) Update(u User) error {
 }
 
 // Delete an existing user
-func (r *InMemoryRepository) Delete(username string) error {
+func (r *InMemoryRepository) Delete(_ context.Context, username string) error {
 	r.Lock()
 	defer r.Unlock()
 

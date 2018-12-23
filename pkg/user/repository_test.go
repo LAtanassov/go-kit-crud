@@ -1,6 +1,7 @@
 package user_test
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -10,25 +11,27 @@ import (
 func TestInMemoryRepository_create(t *testing.T) {
 
 	t.Run("should create a user", func(t *testing.T) {
+		ctx := context.TODO()
 		r := user.NewInMemoryRepository()
 		u := user.New("username", "firstname", "familyname")
 
-		err := r.Create(u)
+		err := r.Create(ctx, u)
 		if err != nil {
 			t.Errorf("Repository.Create(...) error = %v", err)
 		}
 	})
 
 	t.Run("should return ErrUserAlreadyExists if username is already used", func(t *testing.T) {
+		ctx := context.TODO()
 		r := user.NewInMemoryRepository()
 		u := user.New("username", "firstname", "familyname")
 
-		err := r.Create(u)
+		err := r.Create(ctx, u)
 		if err != nil {
 			t.Errorf("Repository.Create(...) error = %v", err)
 		}
 
-		err = r.Create(u)
+		err = r.Create(ctx, u)
 		if err == nil {
 			t.Errorf("Repository.Create(...) expect error = %v", user.ErrUserAlreadyExists)
 		}
@@ -39,15 +42,16 @@ func TestInMemoryRepository_create(t *testing.T) {
 	})
 
 	t.Run("should read an existing user", func(t *testing.T) {
+		ctx := context.TODO()
 		r := user.NewInMemoryRepository()
 		want := user.New("username", "firstname", "familyname")
 
-		err := r.Create(want)
+		err := r.Create(ctx, want)
 		if err != nil {
 			t.Errorf("Repository.Create(...) error = %v", err)
 		}
 
-		got, err := r.Read("username")
+		got, err := r.Read(ctx, "username")
 		if err != nil {
 			t.Errorf("Repository.Read(...) error = %v", err)
 		}
@@ -58,15 +62,16 @@ func TestInMemoryRepository_create(t *testing.T) {
 	})
 
 	t.Run("should read an non-existing user", func(t *testing.T) {
+		ctx := context.TODO()
 		r := user.NewInMemoryRepository()
 		want := user.New("username", "firstname", "familyname")
 
-		err := r.Create(want)
+		err := r.Create(ctx, want)
 		if err != nil {
 			t.Errorf("Repository.Create(...) error = %v", err)
 		}
 
-		_, err = r.Read("another-username")
+		_, err = r.Read(ctx, "another-username")
 		if err == nil {
 			t.Errorf("Repository.Read(...) want error = %v", user.ErrUserNotFound)
 		}
@@ -77,32 +82,34 @@ func TestInMemoryRepository_create(t *testing.T) {
 	})
 
 	t.Run("should update a existing user", func(t *testing.T) {
+		ctx := context.TODO()
 		r := user.NewInMemoryRepository()
 		u := user.New("username", "firstname", "familyname")
 
-		err := r.Create(u)
+		err := r.Create(ctx, u)
 		if err != nil {
 			t.Errorf("Repository.Create(...) error = %v", err)
 		}
 
 		u.FamilyName = "newFamilyName"
-		err = r.Update(u)
+		err = r.Update(ctx, u)
 		if err != nil {
 			t.Errorf("Repository.Update(...) error = %v", err)
 		}
 	})
 
 	t.Run("should update a non-existing user", func(t *testing.T) {
+		ctx := context.TODO()
 		r := user.NewInMemoryRepository()
 		oldOne := user.New("old-username", "firstname", "familyname")
 
-		err := r.Create(oldOne)
+		err := r.Create(ctx, oldOne)
 		if err != nil {
 			t.Errorf("Repository.Create(...) error = %v", err)
 		}
 
 		newOne := user.New("new-username", "firstname", "familyname")
-		err = r.Update(newOne)
+		err = r.Update(ctx, newOne)
 		if err == nil {
 			t.Errorf("Repository.Update(...) error = %v", user.ErrUserNotFound)
 		}
@@ -112,24 +119,26 @@ func TestInMemoryRepository_create(t *testing.T) {
 	})
 
 	t.Run("should delete a existing user", func(t *testing.T) {
+		ctx := context.TODO()
 		r := user.NewInMemoryRepository()
 		u := user.New("username", "firstname", "familyname")
 
-		err := r.Create(u)
+		err := r.Create(ctx, u)
 		if err != nil {
 			t.Errorf("Repository.Create(...) error = %v", err)
 		}
 
-		err = r.Delete("username")
+		err = r.Delete(ctx, "username")
 		if err != nil {
 			t.Errorf("Repository.Delete(...) error = %v", err)
 		}
 	})
 
 	t.Run("should delete a non-existing user", func(t *testing.T) {
+		ctx := context.TODO()
 		r := user.NewInMemoryRepository()
 
-		err := r.Delete("username")
+		err := r.Delete(ctx, "username")
 		if err == nil {
 			t.Errorf("Repository.Delete(...) expect error = %v", user.ErrUserNotFound)
 		}
