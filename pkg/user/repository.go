@@ -12,6 +12,22 @@ var (
 	ErrUserAlreadyExists = errors.New("user already exists")
 )
 
+// User is an identity object persisted in the Repository.
+type User struct {
+	username   string
+	GivenName  string
+	FamilyName string
+}
+
+// New returns a user
+func New(username, givenname, familyname string) User {
+	return User{
+		username:   username,
+		GivenName:  givenname,
+		FamilyName: familyname,
+	}
+}
+
 // InMemoryRepository stores user within an inmemory map.
 type InMemoryRepository struct {
 	sync.RWMutex

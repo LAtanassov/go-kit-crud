@@ -1,7 +1,5 @@
 package user
 
-import "errors"
-
 // Service repesents the service layer that provides CRUD operations using a Repository.
 // The service layer should handle:
 // - all Repository-specific errors and expose only Serivce-specific errors to its consumers
@@ -12,25 +10,9 @@ type Service struct {
 // Repository defines an upstream dependency used by Service.
 type Repository interface {
 	Create(user User) error
-	Read(username string) error
+	Read(username string) (User, error)
 	Update(user User) error
 	Delete(username string) error
-}
-
-// User is an identity object persisted in the Repository.
-type User struct {
-	username   string
-	GivenName  string
-	FamilyName string
-}
-
-// New returns a user
-func New(username, givenname, familyname string) User {
-	return User{
-		username:   username,
-		GivenName:  givenname,
-		FamilyName: familyname,
-	}
 }
 
 // NewService allocates and returns (user) service.
@@ -40,18 +22,23 @@ func NewService(r Repository) *Service {
 	}
 }
 
-func (s *Service) create(username, givenname, familyname string) (User, error) {
-	return User{}, errors.New("not implemented")
+// Create a new user and persit it.
+func (s *Service) Create(username, givenname, familyname string) error {
+	u := New(username, givenname, familyname)
+	return s.repo.Create(u)
 }
 
-func (s *Service) read(username string) (User, error) {
-	return User{}, errors.New("not implemented")
+// Read an existing user.
+func (s *Service) Read(username string) (User, error) {
+	return s.repo.Read(username)
 }
 
-func (s *Service) update(username, givenname, familyname string) (User, error) {
-	return User{}, errors.New("not implemented")
+// Update an existing user.
+func (s *Service) Update(u User) error {
+	return s.repo.Update(u)
 }
 
-func (s *Service) delete(username string) (User, error) {
-	return User{}, errors.New("not implemented")
+// Delete an existing user.
+func (s *Service) Delete(username string) error {
+	return s.repo.Delete(username)
 }
