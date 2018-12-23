@@ -6,6 +6,9 @@ go:
 env:
   - GO111MODULE=on
 
+before_script:
+  - go get github.com/mattn/goveralls
+
 script:
   - bash ./ci_script.sh
   - $GOPATH/bin/goveralls -service=travis-ci
