@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package pb;
+
+// User contains all CRUD methods
+service User {
+    rpc Create(CreateRequest) returns (CreateReply) {}
+    rpc Read(ReadRequest) returns (ReadReply) {}
+    rpc Update(UpdateRequest) returns (UpdateReply) {}
+    rpc Delete(DeleteRequest) returns (DeleteReply) {}
+}
+
+// CreateRequest contains all fields necessary to create a new user.
+message CreateRequest {
+    string username = 1;
+    string givenname = 2;
+    string familyname = 3;
+}
+
+message CreateReply {
+    string err = 1;
+}
+
+message ReadRequest {
+    string username = 1;
+}
+
+message ReadReply {
+    string err = 1;
+}
+
+// UpdateRequest contains all fields necessary to update an existing user.
+message UpdateRequest {
+    string username = 1;
+    string givenname = 2;
+    string familyname = 3;
+}
+
+message UpdateReply {
+    string err = 1;
+}
+
+message DeleteRequest {
+    string username = 1;
+}
+
+message DeleteReply {
+    string err = 1;
+}
