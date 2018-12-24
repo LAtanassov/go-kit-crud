@@ -6,8 +6,8 @@ import (
 	"github.com/LAtanassov/go-kit-crud/pkg/pb"
 )
 
-// NewGRPCUserService returns an gRPC server.
-func NewGRPCUserService(svc *Service) pb.UserServer {
+// NewGRPCServer returns an gRPC server.
+func NewGRPCServer(svc *Service) pb.UserServer {
 	return &adapter{svc: svc}
 }
 
