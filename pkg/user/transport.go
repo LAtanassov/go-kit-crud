@@ -3,6 +3,10 @@ package user
 import (
 	"context"
 
+	"google.golang.org/grpc/codes"
+
+	"google.golang.org/grpc"
+
 	"github.com/LAtanassov/go-kit-crud/pkg/pb"
 )
 
@@ -20,7 +24,7 @@ func (a *adapter) Create(ctx context.Context, req *pb.CreateRequest) (*pb.Create
 	u := New(req.Username, req.Givenname, req.Familyname)
 	err := a.svc.Create(ctx, u)
 	if err != nil {
-		return nil, err
+		return nil, grpc.Errorf(codes.Internal, err.Error())
 	}
 	return &pb.CreateReply{}, nil
 }
@@ -29,7 +33,7 @@ func (a *adapter) Create(ctx context.Context, req *pb.CreateRequest) (*pb.Create
 func (a *adapter) Read(ctx context.Context, req *pb.ReadRequest) (*pb.ReadReply, error) {
 	_, err := a.svc.Read(ctx, req.Username)
 	if err != nil {
-		return nil, err
+		return nil, grpc.Errorf(codes.Internal, err.Error())
 	}
 	return &pb.ReadReply{}, nil
 }
@@ -39,7 +43,7 @@ func (a *adapter) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.Update
 	u := New(req.Username, req.Givenname, req.Familyname)
 	err := a.svc.Update(ctx, u)
 	if err != nil {
-		return nil, err
+		return nil, grpc.Errorf(codes.Internal, err.Error())
 	}
 	return &pb.UpdateReply{}, nil
 }
@@ -48,7 +52,7 @@ func (a *adapter) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.Update
 func (a *adapter) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteReply, error) {
 	err := a.svc.Delete(ctx, req.Username)
 	if err != nil {
-		return nil, err
+		return nil, grpc.Errorf(codes.Internal, err.Error())
 	}
 	return &pb.DeleteReply{}, nil
 }
