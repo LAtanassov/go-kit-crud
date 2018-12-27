@@ -12,7 +12,7 @@ import (
 	"github.com/LAtanassov/go-kit-crud/pkg/user"
 )
 
-func TestService_create(t *testing.T) {
+func TestService_Create(t *testing.T) {
 
 	conn, err := grpc.Dial(":8080", grpc.WithInsecure())
 	if err != nil {
