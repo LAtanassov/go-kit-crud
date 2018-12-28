@@ -8,8 +8,10 @@ import (
 
 	grpc "google.golang.org/grpc"
 
+	"google.golang.org/grpc/status"
+
 	"github.com/LAtanassov/go-kit-crud/pkg/pb"
-	"github.com/LAtanassov/go-kit-crud/pkg/user"
+	"google.golang.org/grpc/codes"
 )
 
 func TestService_Create(t *testing.T) {
@@ -25,28 +27,25 @@ func TestService_Create(t *testing.T) {
 	t.Run("should create a new user", func(t *testing.T) {
 		_, err := client.Create(context.TODO(), &pb.CreateRequest{Username: "unique-username", Givenname: "givenname", Familyname: "familyname"})
 		if err != nil {
-			t.Errorf("Service.Create() error = %v", err)
-
+			t.Errorf("client.Create() error = %v", err)
 		}
 	})
 
-	t.Run("should return ErrUserAlreadyExists if the username already exists", func(t *testing.T) {
+	t.Run("should return AlreadyExists if the username already exists", func(t *testing.T) {
 
 		_, err := client.Create(context.TODO(), &pb.CreateRequest{Username: "twice-username", Givenname: "givenname", Familyname: "familyname"})
 		if err != nil {
-			t.Errorf("Service.Create() error = %v", err)
-
+			t.Errorf("client.Create() error = %v", err)
 		}
 
 		_, err = client.Create(context.TODO(), &pb.CreateRequest{Username: "twice-username", Givenname: "givenname", Familyname: "familyname"})
 		if err == nil {
-			t.Errorf("Service.Create() expects error = %v", err)
-
+			t.Errorf("client.Create() expects error with code = %v", codes.AlreadyExists)
 		}
 
-		if err != user.ErrUserAlreadyExists {
-			t.Errorf("Service.Create() expects error = %v, but got err %v", user.ErrUserAlreadyExists, err)
-
+		c := status.Code(err)
+		if c != codes.AlreadyExists {
+			t.Errorf("client.Create() expects error with code = %v, but got err with code %v", codes.AlreadyExists, c)
 		}
 	})
 
@@ -66,21 +65,24 @@ func TestService_Read(t *testing.T) {
 		username := "read-username"
 		_, err := client.Create(context.TODO(), &pb.CreateRequest{Username: username, Givenname: "givenname", Familyname: "familyname"})
 		if err != nil {
-			t.Errorf("Service.Create() error = %v", err)
-
+			t.Errorf("client.Create() error = %v", err)
 		}
 
 		_, err = client.Read(context.TODO(), &pb.ReadRequest{Username: username})
 		if err != nil {
-			t.Errorf("Service.Read() error = %v", err)
-
+			t.Errorf("client.Read() error = %v", err)
 		}
 	})
 
-	t.Run("should return ErrUserNotFound if the username does not exist", func(t *testing.T) {
+	t.Run("should return NotFound if the username does not exist", func(t *testing.T) {
 		_, err := client.Read(context.TODO(), &pb.ReadRequest{Username: "non-existing-username"})
 		if err == nil {
-			t.Errorf("Service.Read() want error = %v", user.ErrUserAlreadyExists)
+			t.Errorf("client.Read() expects error with code = %v", codes.NotFound)
+		}
+
+		c := status.Code(err)
+		if c != codes.NotFound {
+			t.Errorf("client.Read() expects error with code = %v, but got err with code %v", codes.NotFound, c)
 		}
 	})
 }
@@ -99,23 +101,24 @@ func TestService_Update(t *testing.T) {
 
 		_, err := client.Create(context.TODO(), &pb.CreateRequest{Username: "update-username", Givenname: "givenname", Familyname: "familyname"})
 		if err != nil {
-			t.Errorf("Service.Create() error = %v", err)
-
+			t.Errorf("client.Create() error = %v", err)
 		}
 
 		_, err = client.Update(context.TODO(), &pb.UpdateRequest{Username: "update-username", Givenname: "another-givenname", Familyname: "familyname"})
 		if err != nil {
-			t.Errorf("Service.Update() error = %v", err)
+			t.Errorf("client.Update() error = %v", err)
 		}
 	})
 
 	t.Run("should return ErrUserNotFound if the username does not exist", func(t *testing.T) {
 		_, err = client.Update(context.TODO(), &pb.UpdateRequest{Username: "non-existing-username", Givenname: "another-givenname", Familyname: "familyname"})
 		if err == nil {
-			t.Errorf("Service.Update() want error = %v", user.ErrUserNotFound)
+			t.Errorf("client.Update() expects error with code = %v", codes.NotFound)
 		}
-		if err != user.ErrUserNotFound {
-			t.Errorf("Service.Update() expects error = %v, but got err %v", user.ErrUserNotFound, err)
+
+		c := status.Code(err)
+		if c != codes.NotFound {
+			t.Errorf("client.Update() expects error with code = %v, but got err with code %v", codes.NotFound, c)
 		}
 	})
 }
@@ -135,7 +138,6 @@ func TestService_Delete(t *testing.T) {
 		_, err := client.Create(context.TODO(), &pb.CreateRequest{Username: username, Givenname: "givenname", Familyname: "familyname"})
 		if err != nil {
 			t.Errorf("Service.Create() error = %v", err)
-
 		}
 
 		_, err = client.Delete(context.TODO(), &pb.DeleteRequest{Username: username})
@@ -147,10 +149,12 @@ func TestService_Delete(t *testing.T) {
 	t.Run("should return ErrUserNotFound if the username does not exist", func(t *testing.T) {
 		_, err = client.Delete(context.TODO(), &pb.DeleteRequest{Username: "non-existing-username"})
 		if err == nil {
-			t.Errorf("Service.Delete() want error = %v", user.ErrUserNotFound)
+			t.Errorf("client.Delete() expects error with code = %v", codes.NotFound)
 		}
-		if err != user.ErrUserNotFound {
-			t.Errorf("Service.Delete() expects error = %v, but got err %v", user.ErrUserNotFound, err)
+
+		c := status.Code(err)
+		if c != codes.NotFound {
+			t.Errorf("client.Delete() expects error with code = %v, but got err with code %v", codes.NotFound, c)
 		}
 	})
 }
