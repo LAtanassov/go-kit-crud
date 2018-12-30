@@ -11,12 +11,12 @@ import (
 )
 
 // NewGRPCServer returns an gRPC server.
-func NewGRPCServer(svc *Service) pb.UserServer {
+func NewGRPCServer(svc Service) pb.UserServer {
 	return &adapter{svc: svc}
 }
 
 type adapter struct {
-	svc *Service
+	svc Service
 }
 
 // Create forwards grpc calls to the service layer.
