@@ -20,6 +20,7 @@ type Middleware func(Service) Service
 // ServiceImpl repesents the service layer that provides CRUD operations using a Repository.
 // The service layer should handle:
 // - all Repository-specific errors and expose only Serivce-specific errors to its consumers
+// Brace-Yourself: Anti-Pattern
 type ServiceImpl struct {
 	repo Repository
 }

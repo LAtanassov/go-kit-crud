@@ -4,6 +4,10 @@ import (
 	"context"
 	"errors"
 	"sync"
+
+	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
@@ -28,6 +32,8 @@ func New(username, givenname, familyname string) User {
 		FamilyName: familyname,
 	}
 }
+
+// === InMemory ===
 
 // InMemoryRepository stores user within an inmemory map.
 type InMemoryRepository struct {
@@ -96,5 +102,38 @@ func (r *InMemoryRepository) Delete(_ context.Context, username string) error {
 
 	delete(r.users, username)
 
+	return nil
+}
+
+// === MySQL ===
+
+// SQLRepository stores users within a sql database
+type SQLRepository struct {
+	db *sql.DB
+}
+
+// NewSQLRepository returns an new SQLRepository
+func NewSQLRepository(driver, dsn string) (*SQLRepository, error) {
+
+	db, err := sql.Open(driver, dsn)
+	if err != nil {
+		return nil, err
+	}
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	return &SQLRepository{
+		db: db,
+	}, nil
+}
+
+// Create and writes a user into the mysql database
+func (r *SQLRepository) Create(ctx context.Context, u User) error {
+	_, err := r.db.ExecContext(ctx, "Users.CreateUser.V1", sql.Named("username", u.username), sql.Named("givenname", u.GivenName), sql.Named("familyname", u.FamilyName))
+	if err != nil {
+		return err
+	}
 	return nil
 }

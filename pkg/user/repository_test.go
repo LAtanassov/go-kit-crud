@@ -8,7 +8,7 @@ import (
 	"github.com/LAtanassov/go-kit-crud/pkg/user"
 )
 
-func TestInMemoryRepository_create(t *testing.T) {
+func TestInMemoryRepository(t *testing.T) {
 
 	t.Run("should create a user", func(t *testing.T) {
 		ctx := context.TODO()
