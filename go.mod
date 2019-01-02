@@ -2,6 +2,7 @@ module github.com/LAtanassov/go-kit-crud
 
 require (
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
+	github.com/VividCortex/mysqlerr v0.0.0-20170204212430-6c6b55f8796f
 	github.com/go-kit/kit v0.8.0
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.1

@@ -7,7 +7,9 @@ import (
 
 	"database/sql"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
+
+	"github.com/VividCortex/mysqlerr"
 )
 
 var (
@@ -19,7 +21,7 @@ var (
 
 // User is an identity object persisted in the Repository.
 type User struct {
-	username   string
+	Username   string
 	GivenName  string
 	FamilyName string
 }
@@ -27,7 +29,7 @@ type User struct {
 // New returns a user
 func New(username, givenname, familyname string) User {
 	return User{
-		username:   username,
+		Username:   username,
 		GivenName:  givenname,
 		FamilyName: familyname,
 	}
@@ -53,12 +55,12 @@ func (r *InMemoryRepository) Create(_ context.Context, u User) error {
 	r.Lock()
 	defer r.Unlock()
 
-	_, ok := r.users[u.username]
+	_, ok := r.users[u.Username]
 	if ok {
 		return ErrUserAlreadyExists
 	}
 
-	r.users[u.username] = u
+	r.users[u.Username] = u
 	return nil
 }
 
@@ -80,12 +82,12 @@ func (r *InMemoryRepository) Update(_ context.Context, u User) error {
 	r.Lock()
 	defer r.Unlock()
 
-	_, ok := r.users[u.username]
+	_, ok := r.users[u.Username]
 	if !ok {
 		return ErrUserNotFound
 	}
 
-	r.users[u.username] = u
+	r.users[u.Username] = u
 
 	return nil
 }
@@ -119,10 +121,6 @@ func NewSQLRepository(driver, dsn string) (*SQLRepository, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = db.Ping()
-	if err != nil {
-		return nil, err
-	}
 
 	return &SQLRepository{
 		db: db,
@@ -131,9 +129,24 @@ func NewSQLRepository(driver, dsn string) (*SQLRepository, error) {
 
 // Create and writes a user into the mysql database
 func (r *SQLRepository) Create(ctx context.Context, u User) error {
-	_, err := r.db.ExecContext(ctx, "Users.CreateUser.V1", sql.Named("username", u.username), sql.Named("givenname", u.GivenName), sql.Named("familyname", u.FamilyName))
-	if err != nil {
-		return err
+	_, err := r.db.ExecContext(ctx, "INSERT INTO Users(Username, Givenname, Familyname) VALUES (?, ?, ?)", u.Username, u.GivenName, u.FamilyName)
+	if driverErr, ok := err.(*mysql.MySQLError); ok {
+		if driverErr.Number == mysqlerr.ER_DUP_ENTRY {
+			return ErrUserAlreadyExists
+		}
 	}
-	return nil
+	return err
+}
+
+// Create and writes a user into the mysql database
+func (r *SQLRepository) Read(ctx context.Context, username string) (User, error) {
+	u := User{}
+	err := r.db.QueryRowContext(ctx, "SELECT u.Username, u.Givenname, u.Familyname FROM Users as u WHERE u.Username = ?", 1).Scan(&u.Username, &u.GivenName, &u.FamilyName)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return u, ErrUserNotFound
+		}
+		return u, err
+	}
+	return u, nil
 }

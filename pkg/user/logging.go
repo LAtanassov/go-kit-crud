@@ -25,7 +25,7 @@ func (s *loggingService) Create(ctx context.Context, user User) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "Create",
-			"username", user.username,
+			"username", user.Username,
 
 			"err", fmt.Sprintf("%+v", err),
 
@@ -57,7 +57,7 @@ func (s *loggingService) Update(ctx context.Context, u User) (err error) {
 	defer func(begin time.Time) {
 		s.logger.Log(
 			"method", "Update",
-			"username", u.username,
+			"username", u.Username,
 
 			"err", fmt.Sprintf("%+v", err),
 
