@@ -151,6 +151,24 @@ func (r *SQLRepository) Read(ctx context.Context, username string) (User, error)
 	return u, nil
 }
 
+// Update a user from mysql database
+func (r *SQLRepository) Update(ctx context.Context, u User) error {
+	res, err := r.db.ExecContext(ctx, "UPDATE Users as u SET u.Givenname = ?, u.Familyname = ? WHERE u.Username = ?", u.GivenName, u.FamilyName, u.Username)
+	if err != nil {
+		return err
+	}
+	rowCnt, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowCnt == 0 {
+		return ErrUserNotFound
+	}
+
+	return err
+}
+
 // Delete a user from mysql database
 func (r *SQLRepository) Delete(ctx context.Context, username string) error {
 	res, err := r.db.ExecContext(ctx, "DELETE FROM Users WHERE Username = ?", username)
