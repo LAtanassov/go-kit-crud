@@ -141,7 +141,7 @@ func (r *SQLRepository) Create(ctx context.Context, u User) error {
 // Create and writes a user into the mysql database
 func (r *SQLRepository) Read(ctx context.Context, username string) (User, error) {
 	u := User{}
-	err := r.db.QueryRowContext(ctx, "SELECT u.Username, u.Givenname, u.Familyname FROM Users as u WHERE u.Username = ?", 1).Scan(&u.Username, &u.GivenName, &u.FamilyName)
+	err := r.db.QueryRowContext(ctx, "SELECT u.Username, u.Givenname, u.Familyname FROM Users as u WHERE u.Username = ?", username).Scan(&u.Username, &u.GivenName, &u.FamilyName)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return u, ErrUserNotFound
@@ -149,4 +149,22 @@ func (r *SQLRepository) Read(ctx context.Context, username string) (User, error)
 		return u, err
 	}
 	return u, nil
+}
+
+// Delete a user from mysql database
+func (r *SQLRepository) Delete(ctx context.Context, username string) error {
+	res, err := r.db.ExecContext(ctx, "DELETE FROM Users WHERE Username = ?", username)
+	if err != nil {
+		return err
+	}
+	rowCnt, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowCnt == 0 {
+		return ErrUserNotFound
+	}
+
+	return err
 }
