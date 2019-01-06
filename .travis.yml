@@ -10,5 +10,5 @@ before_script:
   - go get github.com/mattn/goveralls
 
 script:
-  - bash ./ci_script.sh
+  - bash ./ci_unit.sh
   - $GOPATH/bin/goveralls -service=travis-ci -ignore pkg/pb/usersvc.pb.go
